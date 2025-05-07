@@ -1,0 +1,162 @@
+<?xml version="1.0" ?>
+
+<robot name="mobile_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+<!-- Body geometry -->
+<xacro:property name="body_link_x_dim" value="0.30" />
+<xacro:property name="body_link_y_dim" value="0.45" />
+<xacro:property name="body_link_z_dim" value="0.09" />
+
+<!-- Wheel geometry -->
+<xacro:property name="wheel_link_radius" value="0.0325" />
+<xacro:property name="wheel_link_length" value="0.02" />
+<xacro:property name="wheel_link_x_location" value="0.12" />
+
+<!-- Sphere geometry -->
+<xacro:property name="sphere_radius" value="0.02" />
+<xacro:property name="sphere_joint_y" value="-0.15" />
+<xacro:property name="z_sphere" value="-0.01" />
+
+<xacro:property name="sphere_radius_2" value="0.02" />
+<xacro:property name="sphere_joint_y_2" value="0.15" />
+<xacro:property name="z_sphere_2" value="-0.01" />
+
+<!-- Constants -->
+<xacro:property name="pi_const" value="3.1415926535898" />
+<xacro:property name="half_pi_const" value="1.5707963" />
+ 
+<!-- Material colors --> 
+<material name="white">
+	<color rgba="1.0 1.0 1.0 1.0"/>
+</material>
+  
+<material name="yellow">
+	<color rgba="1 0.9 0.0 1.0"/>
+</material>
+
+<material name="green">
+	<color rgba="0.0 0.8 0.0 1.0"/>
+</material>
+
+<material name="red">
+	<color rgba="0.8 0.0 0.0 1.0"/>
+</material>
+
+<link name="base_frame"/>
+
+<joint name="base_joint" type="fixed">
+	<origin xyz="0 0 0" rpy="0 0 ${half_pi_const}" />
+	<parent link="base_frame"/>
+	<child link="base_link" />
+</joint>
+
+<link name="base_link">
+ 	<visual>
+		<geometry>
+			<box size="${body_link_x_dim} ${body_link_y_dim} ${body_link_z_dim}" />
+		</geometry>
+	 <origin xyz="0 0 0.065" rpy="0 0 0"/>
+      </visual>
+</link>
+
+<joint name="left_wheel_joint" type="fixed">
+	<origin xyz="-${wheel_link_x_location} 0 0" rpy="0 0 0"/>
+	<parent link="base_link"/>
+	<child link="left_wheel_link"/>
+	<axis xyz="1 0 0"/>
+	<limit effort="100" velocity="100"/>
+	<joint_properties damping="0.0" friction="0.0"/>
+</joint>
+
+<link name="left_wheel_link">
+	<visual>
+		<origin xyz="0 0 0.0325" rpy="0 ${half_pi_const} 0" />
+		<geometry>
+			<cylinder radius="${wheel_link_radius}" length = "${wheel_link_length}"/>
+		</geometry>
+     	 	<material name ="yellow" />
+	</visual>
+</link>
+
+<link name="right_wheel_link">
+	<visual>
+		<origin xyz="0 0 0.0325" rpy="0 ${half_pi_const} 0" />
+		<geometry>
+			<cylinder radius="${wheel_link_radius}" length = "${wheel_link_length}"/>
+		</geometry>
+		<material name ="yellow" />
+	</visual>
+</link>
+	
+
+<joint name="right_wheel_joint" type="fixed">
+	<origin xyz="${wheel_link_x_location} 0 0" rpy="0 0 0"/>
+	<parent link="base_link"/>
+	<child link="right_wheel_link"/>
+	<axis xyz="1 0 0"/>
+</joint>
+	
+
+<joint name="robot_caster_back_joint" type="fixed">
+	<parent link="base_link"/>
+	<child link="robot_caster_back_link"/>
+	<origin xyz="0 ${sphere_joint_y} 0.03" rpy="0 0 0"/>
+</joint>
+
+<link name="robot_caster_back_link">
+	<origin xyz="0 0 0"/>
+	<visual>
+		<origin xyz="0 0 ${z_sphere}" rpy="0 0 0" />
+		<geometry>
+			<sphere radius="${sphere_radius}" />
+		</geometry>
+		<material name ="green" />
+	</visual>
+</link>
+
+<joint name="robot_caster_back_joint_2" type="fixed">
+	<parent link="base_link"/>
+	<child link="robot_caster_back_link_2"/>
+	<origin xyz="0 ${sphere_joint_y_2} 0.03" rpy="0 0 0"/>
+</joint>
+
+<link name="robot_caster_back_link_2">
+	<origin xyz="0 0 0"/>
+	<visual>
+		<origin xyz="0 0 ${z_sphere_2}" rpy="0 0 0" />
+		<geometry>
+			<sphere radius="${sphere_radius_2}" />
+		</geometry>
+		<material name ="green" />
+	</visual>
+</link>
+
+<joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+</joint>
+
+<link name="laser">
+    <visual>
+        <geometry>
+            <cylinder radius="0.03" length="0.03"/>
+        </geometry>
+        <material name="red"/>
+    </visual>
+    <visual>
+        <origin xyz="0 0 -0.03"/>
+        <geometry>
+            <cylinder radius="0.01" length="0.03"/>
+        </geometry>
+        <material name="red"/>
+    </visual>
+    <collision>
+        <geometry>
+            <cylinder radius="0.05" length="0.04"/>
+        </geometry>
+    </collision>
+</link>
+
+
+</robot>

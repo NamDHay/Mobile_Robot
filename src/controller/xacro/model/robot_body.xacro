@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="inertia_tensors.xacro"/>
+  <xacro:include filename="robot_chassis.xacro"/>
+
+  <xacro:include filename="robot_wheel_left.xacro"/>
+  <xacro:include filename="robot_wheel_right.xacro"/>
+  <xacro:include filename="robot_swivel.xacro"/>
+
+  <xacro:include filename="_d435.urdf.xacro"/>
+  <xacro:include filename="robot_plugins.xacro"/>
+
+  <xacro:macro name="robot_body" params="name parent meshes">
+
+    <!-- base_link -->
+    <link name="${parent}"/>
+
+    <!-- Chassis -->
+    <xacro:base_chassis name="${name}" parent="base_link" xyz="0 0 0" rpy="0 0 0"  meshes="${meshes}"/>
+
+    <!-- Wheels -->
+    <xacro:base_wheel_left parent="${name}"  xyz="0  0.15 0.09" rpy="0 0 0" radius="0.09" meshes="${meshes}"/>
+    <xacro:base_wheel_right  parent="${name}"  xyz="0 -0.15 0.09" rpy="0 0 0" radius="0.09" meshes="${meshes}"/>
+    <xacro:base_swivel parent="${name}"  xyz="-0.185 0 0.055" rpy="0 0 0" meshes="${meshes}"/>
+
+    <!-- Depth Camera -->
+    <xacro:sensor_d435 name="camera" topics_ns="camera" parent="base_link" >
+      <origin xyz="0.275 0 0.045" rpy="0 0 0" />
+    </xacro:sensor_d435>  
+    <!-- Motor plugin -->
+    <xacro:robot_diff_drive /> 
+
+    <!-- Joints plugin -->
+    <xacro:robot_joints_state_publisher />
+
+  </xacro:macro>
+</robot>
