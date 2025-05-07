@@ -1,2 +1,0 @@
-controller
--DCATKIN_DEVEL_PREFIX=/home/namdhay/MyPlayGround/Capstone/Mobile_Robot/devel -DCMAKE_INSTALL_PREFIX=/home/namdhay/MyPlayGround/Capstone/Mobile_Robot/install -G Unix Makefiles
