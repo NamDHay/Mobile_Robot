@@ -1,0 +1,5 @@
+../Core/Src/encoder.c:11:6:encoder_Init	24	static
+../Core/Src/encoder.c:18:7:encoder_GetSpeed	24	static
+../Core/Src/encoder.c:30:7:encoder_GetPulse	16	static
+../Core/Src/encoder.c:44:6:encoder_ResetCount	16	static
+../Core/Src/encoder.c:51:7:encoder_GetFilterSpeedVal	16	static
