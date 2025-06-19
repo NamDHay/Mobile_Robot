@@ -5,13 +5,14 @@ from sensor_msgs.msg import LaserScan
 
 filtered_pub = None
 
+
 def lidar_callback(data):
     ranges = data.ranges
     angle_increment = data.angle_increment
     start_angle = data.angle_min
 
-    min_angle = -35 * (3.14159 / 180)
-    max_angle = 140 * (3.14159 / 180)
+    min_angle = -30 * (3.14159 / 180)
+    max_angle = 135 * (3.14159 / 180)
 
     min_index = int((min_angle - start_angle) / angle_increment)
     max_index = int((max_angle - start_angle) / angle_increment)
@@ -37,6 +38,7 @@ def lidar_listener():
 
     rospy.Subscriber("/scan", LaserScan, lidar_callback)
     rospy.spin()
+
 
 if __name__ == "__main__":
     try:

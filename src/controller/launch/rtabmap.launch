@@ -66,7 +66,7 @@
 
       <!-- RTAB-Map's parameters -->
       <param name="Rtabmap/TimeThr" type="string" value="500"/>
-      <param name="Rtabmap/DetectionRate" type="string" value="3"/>
+      <param name="Rtabmap/DetectionRate" type="string" value="5"/>
       <param name="Reg/Force3DoF"                 value="true"/>
 
       <param name="Kp/DetectorStrategy" type="string" value="6"/>   <!-- use ORB -->

@@ -1,12 +1,11 @@
-obstacle_range: 5.0 # 2.0
-raytrace_range: 5.0 # 3.0
+obstacle_range: 1.0
+raytrace_range: 1.5 
 
 transform_tolerance: 0.2 # 0.0
 
-footprint: [[-0.2, -0.15], [0.2, -0.15], [0.2, 0.15], [-0.2, 0.15]]  # 30 cm x 40 cm rectangle
-footprint_padding: 0.05  # 5 cm padding
-inflation_radius: 0.3 # 0.0
-cost_scaling_factor: 10.0
+footprint: [[-0.225, -0.175], [0.225, -0.175], [0.225, 0.175], [-0.225, 0.175]]  # 35 cm x 45 cm rectangle
+inflation_radius: 0.25 # 0.0
+cost_scaling_factor: 5.0
 
 transform_tolerance: 1
 
@@ -14,10 +13,9 @@ controller_frequency: 10.0
 planner_patience: 5.0
 controller_patience: 15.0
 
-observation_sources: laser_scan_sensor point_cloud_sensor
+observation_sources: laser_scan_sensor
 
 laser_scan_sensor: {sensor_frame: laser, data_type: LaserScan, topic: /filtered_scan, marking: true, clearing: true}
-point_cloud_sensor: {sensor_frame: camera_depth_optical_frame, data_type: PointCloud2, topic: camera/depth_registered/points, marking: true, clearing: true, min_obstacle_height: 0.05, max_obstacle_height: 1.0}
 
 base_global_planner: "navfn/NavfnROS"
 base_local_planner: "base_local_planner/TrajectoryPlannerROS"

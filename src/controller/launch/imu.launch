@@ -1,9 +1,0 @@
-<launch>
-  <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter">
-    <param name="use_mag" value="false"/>
-    <param name="publish_tf" value="false"/>
-    <remap from="imu/data_raw" to="/camera/imu"/>
-    <remap from="imu/data" to="/camera/imu/data"/>
-  </node>
-</launch>
-
