@@ -9,7 +9,7 @@
 	<include file="$(find controller)/launch/robot_description.launch"/>
 
 		<!-- Bring up Camera -->
-	<include file="$(find controller)/launch/rs_rgbd.launch">
+	<include file="$(find controller)/launch/camera.launch">
 		<arg name="enable_infra1"             value="true"/>
 		<arg name="enable_infra2"             value="true"/>
 	</include>
