@@ -2,30 +2,32 @@
 <launch>
   <!-- Argument -->
   <arg name="lidar" default="true" />
-  <arg name="rviz" default="true" />
-  <arg name="rtabmapviz" default="false" />
-  <arg name="localization" default="false" />
-  <arg name="move" default="false" />
+  <arg name="localization" default="true" />
+  <arg name="move" default="true" />
 
-  <!-- Robot -->
+  <!-- Bring up Robot -->
   <include file="$(find controller)/launch/robot_description.launch"/>
+
+  <!-- Bring up Robot -->
+  <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+	  <arg name="enable_infra1"             value="true"/>
+	  <arg name="enable_infra2"             value="true"/>
+  </include>
 
   <!-- Odometry -->
   <include file="$(find controller)/launch/odometry.launch">
-    <arg name="use_lidar"             value="$(arg lidar)"/>
+	  <arg name="use_lidar"             value="$(arg lidar)"/>
   </include>
 
   <!-- RTAB-Map -->
   <include file="$(find controller)/launch/rtabmap.launch">
-    <arg name="use_lidar"             value="$(arg lidar)"/>
-    <arg name="use_rtabmapviz"        value="$(arg rtabmapviz)"/>
-    <arg name="localization"          value="$(arg localization)"/>
+	  <arg name="use_lidar"             value="$(arg lidar)"/>
+	  <arg name="localization"          value="$(arg localization)"/>
   </include>
 
   <!-- Move_Base -->
-  <include if="$(arg move)" file="$(find controller)/launch/move_base.launch"/>
+  <include if="$(arg move)" file="$(find controller)/launch/move_base.launch">
 
-  <!-- RVIZ -->
-  <include if="$(arg use_rviz)" file="$(find controller)/launch/rviz.launch"/>
+  </include>
 </launch>
 

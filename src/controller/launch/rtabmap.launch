@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- Config Argument -->
-  <arg name="use_lidar"               default="true" />
-  <arg name="use_rtabmapviz"          default="false" />
-  <arg name="localization"            default="false"/>
-  <arg name="database_path"           default="~/.ros/rtabmap.db"/>
+	<!-- Config Argument -->
+	<arg name="use_lidar"               default="true" />
+	<arg name="localization"            default="true"/>
+	<arg name="database_path"           default="~/.ros/rtabmap.db"/>
   <arg     if="$(arg localization)"   name="rtabmap_args" default=""/>
-  <arg unless="$(arg localization)"   name="rtabmap_args" default="--delete_db_on_start"/>  
-  <arg name="clear_params"            default="true"/>
+  <arg unless="$(arg localization)"   name="rtabmap_args" default="-d"/>  
   <arg name="output"                  default="screen"/>
 
   <!-- Topic Argument -->
@@ -29,57 +27,99 @@
 
   <!-- SLAM -->
   <group ns="rtabmap">
-    <node name="rtabmap" pkg="rtabmap_slam" type="rtabmap" args="--delete_db_on_start" clear_params="$(arg clear_params)" output="$(arg output)">
+    <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_sync/rgbd_sync" output="screen">
+      <remap from="rgb/image"       to="/camera/color/image_raw"/>
+      <remap from="depth/image"     to="/camera/aligned_depth_to_color/image_raw"/>
+      <remap from="rgb/camera_info" to="/camera/color/camera_info"/>
+      <remap from="rgbd_image"      to="rgbd_image"/> 
+      <param name="approx_sync"       value="true"/> 
+    </node>
+
+    <node name="rtabmap" pkg="rtabmap_slam" type="rtabmap" args="$(arg rtabmap_args)" output="$(arg output)">
       <param name="frame_id"          type="string" value="base_link"/>
-      <param name="frame_rate"        value="5"/>
+      <param name="database_path"     type="string" value="$(arg database_path)"/>
+      <param name="map_frame_id"      type="string" value="map" />
+      <param name="wait_for_transform" type="bool" value="true"/>
 
-      <param name="subscribe_depth"   type="bool"   value="true"/>
-      <param name="subscribe_rgb"     type="bool"   value="true"/>
-      <param name="subscribe_rgbd"    type="bool"   value="false"/>
-      <param name="subscribe_scan"    type="bool"   value="true"/>
-      <param name="approx_sync"       type="bool"   value="true"/>
+      <param name="subscribe_depth"    type="bool" value="false"/>
+      <param name="subscribe_rgbd"     type="bool" value="true"/>
+      <param name="subscribe_scan"     type="bool" value="true"/>
+      <param name="subscribe_odom"     type="bool" value="true" />
+      <param name="approx_sync"        type="bool" value="true"/>
+      <param name="rgbd_sync"          type="bool" value="true"/>
+      <param name="approx_rgbd_sync"   type="bool" value="false"/>
 
-      <remap from="rgb/image"         to="$(arg rgb_topic)"/>
-      <remap from="depth/image"       to="$(arg depth_topic)"/>
-      <remap from="rgb/camera_info"   to="$(arg camera_info_topic)"/>
+      <param name="cloud_subtract_filtering_min_neighbors" value="2"/>
 
-      <remap from="odom"              to="$(arg odom_topic)"/>
+      <param name="use_sim_time"       type="bool" value="true"/>
+      <param name="use_action_for_goal" type="bool" value="true"/>
+      <remap from="move_base" to="/move_base"/>
+      <remap from="goal_out"  to="/move_base_simple/goal"/>
+
+      <remap from="rgbd_image"         to="rgbd_image"/>
+      <remap from="odom"               to="$(arg odom_topic)"/>
       <remap     if="$(arg use_lidar)" from="scan" to="/filtered_scan"/>
       <remap unless="$(arg use_lidar)" from="scan" to="/depth_scan"/>
 
-      <param name="sync_queue_size"   type="int"    value="10"/>
-      <param name="topic_queue_size"  type="int"    value="10"/>
+      <param name="sync_queue_size"    type="int"    value="100"/>
+      <param name="topic_queue_size"   type="int"    value="100"/>
 
       <!-- RTAB-Map's parameters -->
-      <param name="RGBD/ProximityBySpace"          type="string" value="false"/>
-      <param name="RGBD/AngularUpdate"             type="string" value="0.01"/>
-      <param name="RGBD/LinearUpdate"              type="string" value="0.01"/>
-      <param name="RGBD/OptimizeFromGraphEnd"      type="string" value="false"/>
-      <param name="RGBD/ProximityPathMaxNeighbors" type="string" value="10"/>
-      <param name="Reg/Force3DoF"                  type="string" value="true"/>
-      <param name="Vis/MinInliers"                 type="string" value="12"/>
-      <param name="Grid/Sensor"                    type="string" value="2"/>
-      <param name="Grid/FromDepth"                 type="string" value="true"/>
-      <param name="Grid/3D"                        type="string" value="true"/>
+      <param name="Rtabmap/TimeThr" type="string" value="500"/>
+      <param name="Rtabmap/DetectionRate" type="string" value="3"/>
+      <param name="Reg/Force3DoF"                 value="true"/>
+
+      <param name="Kp/DetectorStrategy" type="string" value="6"/>   <!-- use ORB -->
+      <param name="Kp/MaxDepth"                       type="string" value="0"/>
+      <param name="Kp/MaxFeatures" type="int" value="500"/>
+
+      <param name="Vis/EstimationType"                type="string" value="1"/>   <!-- 0=3D->3D, 1=3D->2D (PnP) -->
+      <param name="Vis/MaxDepth"                      type="string" value="2"/>
+      <param name="Vis/FeatureType" type="int" value="6"/>
+      <param name="Vis/MinInliers" type="int" value="20"/>
+
+      <!-- Graph -->
+      <param name="RGBD/NeighborLinkRefining" type="string" value="false" /> 
+      <param name="RGBD/ProximityBySpace" type="string" value="true" />
+      <param name="RGBD/ProximityMaxGraphDepth" type="string" value="100" /> 
+      <param name="RGBD/AngularUpdate" type="string" value="0.01" /> 
+      <param name="RGBD/LinearUpdate" type="string" value="0.01" />
+      <param name="RGBD/OptimizeFromGraphEnd" type="string" value="true" />
+
+      <!-- Grid (D435-only) -->
+      <param name="Grid/Sensor" type="string" value="2" /> <!-- Depth camera only -->
+      <param name="Grid/DepthDecimation" type="string" value="2" /> <!-- Moderate downsampling for range -->
+      <param name="Grid/FlatObstacleDetected"         type="string" value="true"/>
+      <param name="Grid/RangeMin" type="string" value="0.0" /> <!-- Outdoor minimum range -->
+      <param name="Grid/RangeMax" type="string" value="7.0" /> <!-- Extended for outdoor range -->
+      <param name="Grid/FootprintLength" type="string" value="0.4" /> <!-- 40 cm -->
+      <param name="Grid/FootprintWidth" type="string" value="0.3" /> <!-- 30 cm -->
+      <param name="Grid/FootprintHeight" type="string" value="0.2" /> <!-- Robot height -->
+      <param name="Grid/CellSize" type="string" value="0.05" /> <!-- Coarser for larger area -->
+      <param name="Grid/PreVoxelFiltering" type="string" value="true" />
+      <param name="Grid/NormalsSegmentation" type="string" value="true" /> <!-- Enable for outdoor terrain -->
+      <param name="Grid/MaxObstacleHeight" type="string" value="2.0" /> <!-- Higher for outdoor obstacles -->
+      <param name="Grid/MinGroundHeight" type="string" value="0.0" />
+      <param name="Grid/MaxGroundHeight" type="string" value="0.1" /> <!-- Adjusted for uneven ground -->
+      <param name="Grid/3D" type="string" value="false" /> <!-- 3D for outdoor terrain -->
+      <param name="Grid/NoiseFilteringRadius" type="string" value="0.3" /> <!-- Increased for outdoor noise -->
+      <param name="Grid/NoiseFilteringMinNeighbors" type="string" value="5" />
+      <param name="Grid/RayTracing" type="string" value="false" /> <!-- Not needed with one sensor -->
+      <param name="GridGlobal/FootprintRadius" type="string" value="0.25" />
+
+      <param name="Odom/Strategy"            type="string" value="2"/> <!-- 2=frame-to-frame ICP -->
+      <param name="OdomF2M/MaxSize"          type="string" value="1000"/> <!-- Local map size -->
+
+      <param name="Icp/PointToPlane" type="bool" value="true"/>
+      <param name="Icp/MaxCorrespondenceDistance" type="double" value="0.2"/>
+      <param name="Icp/VoxelSize" type="double" value="0.05"/>
 
       <!-- localization mode -->
       <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
       <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
       <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/>
-    </node>
-
-    <node if="$(arg use_rtabmapviz)" pkg="rtabmap_viz" type="rtabmap_viz" name="rtabmap_viz" args="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" clear_params="$(arg clear_params)" output="$(arg output)">
-      <param name="subscribe_depth"             type="bool" value="true"/>
-      <param name="subscribe_scan"              type="bool" value="true"/>
-      <param name="frame_id"                    type="string" value="base_link"/>
-
-      <remap from="rgb/image"                   to="$(arg rgb_topic)"/>
-      <remap from="depth/image"                 to="$(arg depth_topic)"/>
-      <remap from="rgb/camera_info"             to="$(arg camera_info_topic)"/>
-
-      <remap from="odom" to="$(arg odom_topic)"/>
-      <remap     if="$(arg use_lidar)" from="scan" to="/filtered_scan"/>
-      <remap unless="$(arg use_lidar)" from="scan" to="/depth_scan"/>
+      <param name="Mem/STMSize"              type="string" value="30"/>
     </node>
   </group>
 </launch>
+

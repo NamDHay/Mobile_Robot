@@ -4,13 +4,13 @@
   <arg name="use_lidar" default="true" />
 
   <!-- Run Base -->
-  <node pkg="controller" type="serial_receive.py" name="run_base_node" output="screen"/>
+  <node pkg="controller" type="serial_receive.py" name="run_base_node" respawn="true" respawn_delay="5.0" output="screen"/>
 
   <!-- Odometry -->
   <node pkg="controller" type="subcriberArduino.py" name="dead_reakoning_node" output="log"/>
   
   <!-- RPLidar -->
-  <node if="$(arg use_lidar)" name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+  <node if="$(arg use_lidar)" name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" respawn="true" respawn_delay="5.0" output="screen">
     <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>
     <param name="serial_baudrate"     type="int"    value="115200"/>
     <param name="frame_id"            type="string" value="laser"/>
